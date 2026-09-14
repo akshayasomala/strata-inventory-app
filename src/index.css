@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0a0b0d;
+    color: #aab2c4;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0e1013;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #2a2f38;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #3a4050;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-ink-900 border border-ink-700 rounded-xl;
+  }
+
+  .panel-header {
+    @apply px-5 py-4 border-b border-ink-700;
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg font-display font-medium text-sm transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-amber text-ink-950 hover:bg-amber-light;
+  }
+
+  .btn-secondary {
+    @apply bg-ink-800 text-ink-100 border border-ink-600 hover:bg-ink-700;
+  }
+
+  .btn-danger {
+    @apply bg-danger text-white hover:bg-danger-light;
+  }
+
+  .btn-ghost {
+    @apply text-ink-300 hover:text-ink-100 hover:bg-ink-800;
+  }
+
+  .input {
+    @apply bg-ink-850 border border-ink-600 rounded-lg px-4 py-2.5 text-ink-100 placeholder-ink-400
+           focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition-colors duration-200;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-medium;
+  }
+
+  .badge-healthy {
+    @apply bg-cyan/10 text-cyan-light border border-cyan/30;
+  }
+
+  .badge-low {
+    @apply bg-amber/10 text-amber-light border border-amber/30;
+  }
+
+  .badge-critical {
+    @apply bg-danger/10 text-danger-light border border-danger/30;
+  }
+
+  .badge-neutral {
+    @apply bg-ink-700 text-ink-200 border border-ink-600;
+  }
+
+  .data-table {
+    @apply w-full text-sm;
+  }
+
+  .data-table thead th {
+    @apply text-left px-4 py-3 text-xs font-display font-semibold uppercase tracking-wider text-ink-300 border-b border-ink-600;
+  }
+
+  .data-table tbody tr {
+    @apply border-b border-ink-800 hover:bg-ink-850 transition-colors duration-150;
+  }
+
+  .data-table tbody td {
+    @apply px-4 py-3 text-ink-100;
+  }
+
+  .nav-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer;
+  }
+
+  .nav-link-inactive {
+    @apply text-ink-300 hover:text-ink-100 hover:bg-ink-800;
+  }
+
+  .nav-link-active {
+    @apply bg-amber/10 text-amber-light border border-amber/20;
+  }
+}
