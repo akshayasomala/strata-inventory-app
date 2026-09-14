@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { Suspense, lazy, useMemo, useState } from 'react';
 import {
   Activity, AlertTriangle, ArrowDownToLine, BarChart3, Boxes, ChevronRight,
   CircleHelp, Clock3, Database, DollarSign, Gauge, History, LayoutDashboard,
   Menu, Package, Plus, Search, Settings2, SlidersHorizontal, Sparkles, Truck,
-  Undo2, X, Zap,
+  Undo2, Warehouse, X, Zap,
 } from 'lucide-react';
 import { inventory } from '@/lib/inventory';
 import type { Product, StockStatus } from '@/lib/types';
@@ -18,7 +18,11 @@ import {
   HashTableViz3D, AVLTreeViz3D, MinHeapViz3D, StackViz3D, QueueViz3D,
 } from '@/components/3d/DataStructureViz3D';
 
-type Page = 'dashboard' | 'products' | 'adjustments' | 'low-stock' | 'price-range' | 'restock' | 'complexity';
+const WarehouseSimulationPage = lazy(() =>
+  import('@/pages/WarehouseSimulationPage').then((m) => ({ default: m.WarehouseSimulationPage }))
+);
+
+type Page = 'dashboard' | 'products' | 'adjustments' | 'low-stock' | 'price-range' | 'restock' | 'complexity' | 'simulation';
 
 const navGroups = [
   { label: 'Operations', items: [
@@ -31,6 +35,9 @@ const navGroups = [
     { id: 'low-stock', label: 'Low-Stock Report', icon: AlertTriangle },
     { id: 'price-range', label: 'Price Range Report', icon: BarChart3 },
     { id: 'complexity', label: 'Complexity Lab', icon: Gauge },
+  ]},
+  { label: 'Simulation', items: [
+    { id: 'simulation', label: 'Warehouse Simulation', icon: Warehouse },
   ]},
 ];
 
@@ -728,6 +735,11 @@ function App() {
     page === 'low-stock' ? <LowStock /> :
     page === 'price-range' ? <PriceRange /> :
     page === 'restock' ? <Restock /> :
+    page === 'simulation' ? (
+      <Suspense fallback={<div className="flex items-center justify-center h-[400px]"><div className="text-sm text-ink-400 font-mono">Loading simulation...</div></div>}>
+        <WarehouseSimulationPage />
+      </Suspense>
+    ) :
     <Complexity />;
 
   return (

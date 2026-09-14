@@ -6,6 +6,24 @@ import { Stack } from '@/lib/ds/Stack';
 import { Queue } from '@/lib/ds/Queue';
 import type { Mutation, Product, RestockRequest } from '@/lib/types';
 
+export type InventoryEvent =
+  | { type: 'mutation'; mutation: Mutation }
+  | { type: 'undo'; mutation: Mutation }
+  | { type: 'restock-request'; request: RestockRequest }
+  | { type: 'restock-processed'; request: RestockRequest };
+
+type Listener = (event: InventoryEvent) => void;
+const listeners = new Set<Listener>();
+
+export function onInventoryEvent(listener: Listener): () => void {
+  listeners.add(listener);
+  return () => { listeners.delete(listener); };
+}
+
+function emit(event: InventoryEvent) {
+  listeners.forEach((l) => l(event));
+}
+
 const categories: Array<[string, string[]]> = [
   ['Electronics', ['USB-C Hub', 'Wireless Keyboard', 'Noise Cancelling Headphones', 'Webcam Pro', 'Portable SSD', 'Mechanical Mouse']],
   ['Home & Kitchen', ['Ceramic Mug Set', 'Bamboo Cutting Board', 'Cotton Towel Set', 'Glass Food Container', 'Linen Table Runner', 'Cast Iron Skillet']],
@@ -81,6 +99,7 @@ export const inventory = {
     heap.update(id, stock);
     const mutation: Mutation = { id: `M-${Date.now()}`, type: 'EDIT', productId: id, productName: product.name, beforeStock: before, afterStock: stock, delta: stock - before, timestamp: now(), reference: `ADJ-${pad(mutations.size + 1, 4)}` };
     mutations.push(mutation);
+    emit({ type: 'mutation', mutation });
     return mutation;
   },
   undo: (): Mutation | null => {
@@ -88,6 +107,7 @@ export const inventory = {
     if (!mutation) return null;
     const product = hashTable.get(mutation.productId);
     if (product) { product.stock = mutation.beforeStock; product.updatedAt = now(); heap.update(product.id, product.stock); }
+    emit({ type: 'undo', mutation });
     return mutation;
   },
   mutations: () => mutations.toArray(),
@@ -96,6 +116,20 @@ export const inventory = {
     if (!product) return null;
     const request: RestockRequest = { id: `RQ-${Date.now()}`, productId: id, productName: product.name, quantity, timestamp: now(), reference: `WH/${pad(restockQueue.size + 1, 4)}`, status: 'Queued' };
     restockQueue.enqueue(request);
+    emit({ type: 'restock-request', request });
+    return request;
+  },
+  processRestock: (): RestockRequest | null => {
+    const request = restockQueue.dequeue();
+    if (!request) return null;
+    request.status = 'Completed';
+    const product = hashTable.get(request.productId);
+    if (product) {
+      product.stock += request.quantity;
+      product.updatedAt = now();
+      heap.update(product.id, product.stock);
+    }
+    emit({ type: 'restock-processed', request });
     return request;
   },
   restockQueue: () => restockQueue.toArray(),
